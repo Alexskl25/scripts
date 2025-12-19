@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -eq 0 ]]; then
+cat <<EOF
+Usage:
+  kubectl stats <namespace|all> <resource>
+
+  Resources:
+  pods     Show CPU and memory usage for pods
+  nodes    Show CPU and memory usage for nodes
+
+  Examples:
+  kubectl kubeplugin all pod
+  kubectl kubeplugin kube-system pod
+  kubectl kubeplugin all nodes
+EOF
+exit 0
+fi
+
+NAMESPACE="${1:-all}"
+RESOURCE_TYPE="${2:-pods}"
+if [[ "$RESOURCE_TYPE" == "pod" ]]; then
+	if [[ "$NAMESPACE" == "all" ]]; then
+                echo "Resource,Namespace,Name,CPU,Memory"
+		kubectl top pods --all-namespaces --no-headers |
+		while read -r ns name cpu mem; do
+		echo "$RESOURCE_TYPE,${ns},${name},${cpu},${mem}"
+		done
+	else
+		echo "Resource,Namespace,Name,CPU,Memory"
+		kubectl top pods -n "$NAMESPACE" --no-headers |
+		while read -r name cpu mem; do
+		echo "$RESOURCE_TYPE,${NAMESPACE},${name},${cpu},${mem}"
+		done
+	fi
+		elif [[ "$RESOURCE_TYPE" == "nodes" ]]; then
+	        echo "Node, CPU, RAM, Memory"
+		kubectl top nodes --no-headers |
+		while read -r name _ cpu ram mem _; do
+		echo "${name},${cpu},${ram},${mem}"
+	done
+else
+echo "Unsupported resource type: $RESOURCE_TYPE" >&2
+exit 1
+fi
