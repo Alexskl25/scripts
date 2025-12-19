@@ -2,7 +2,7 @@
 kubeplugins
 
 ## first plugin for k8s for collecting statistics from real k8s cluster
-``bash
+```bash
 #!/bin/bash
 
 # Define command-line arguments
@@ -20,4 +20,4 @@ do
   # Output the statistics to the console
   # "Resource, Namespace, Name, CPU, Memory"
 done
-``
+```
